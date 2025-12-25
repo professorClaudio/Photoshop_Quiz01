@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Photoshop Básico</title>
+    <style>
+        :root {
+            --primary: #001e36;
+            --secondary: #00a8e1;
+            --correct: #2ecc71;
+            --wrong: #e74c3c;
+            --bg: #f4f7f6;
+            --text: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            border-bottom: 3px solid var(--secondary);
+            padding-bottom: 10px;
+        }
+
+        .question {
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .question h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+
+        .options label {
+            display: block;
+            padding: 10px;
+            margin: 5px 0;
+            background: #eee;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .options label:hover {
+            background: #e0e0e0;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        button#submit-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button#submit-btn:hover {
+            background-color: var(--secondary);
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Classes de validação */
+        .correct-answer {
+            background-color: var(--correct) !important;
+            color: white;
+        }
+
+        .wrong-answer {
+            background-color: var(--wrong) !important;
+            color: white;
+        }
+
+        .comment {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--primary);
+            background: #f0f0f0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Quiz 01: Photoshop Básico</h1>
+    <form id="quiz-form">
+        <div id="quiz-container"></div>
+        <button type="button" id="submit-btn" onclick="calculateScore()">Finalizar e Ver Resultado</button>
+    </form>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    const questions = [
+        {
+            q: "Qual formato preserva camadas (layers) para edições futuras?",
+            options: ["JPG", "PNG", "PSD", "TIFF"],
+            correct: 2,
+            comment: "O PSD é o formato nativo do Photoshop que mantém toda a estrutura de camadas intacta."
+        },
+        {
+            q: "Para um logotipo com fundo transparente na web, qual o formato ideal?",
+            options: ["JPG", "TIFF", "PNG", "PSD"],
+            correct: 2,
+            comment: "O PNG suporta transparência (canal alfa), essencial para logotipos na internet."
+        },
+        {
+            q: "Qual formato é o 'padrão ouro' para impressão profissional sem perda de qualidade?",
+            options: ["TIFF", "JPG", "GIF", "PNG"],
+            correct: 0,
+            comment: "O TIFF é preferido em gráficas por não perder dados na compressão."
+        },
+        {
+            q: "Qual a tecla de atalho para o Pincel (Brush)?",
+            options: ["P", "B", "S", "Ctrl+B"],
+            correct: 1,
+            comment: "Atalho 'B' vem de Brush."
+        },
+        {
+            q: "O Conta-gotas com a tecla ALT pressionada seleciona qual cor?",
+            options: ["Primeiro Plano", "Transparência", "Plano de Fundo", "Cor de Brilho"],
+            correct: 2,
+            comment: "O Alt inverte para capturar a cor de Plano de Fundo (Background)."
+        },
+        {
+            q: "Qual ajuste do Pincel controla a 'maciez' das bordas?",
+            options: ["Opacidade", "Fluxo", "Dureza", "Espaçamento"],
+            correct: 2,
+            comment: "Dureza (Hardness) baixa cria bordas suaves; alta cria bordas nítidas."
+        },
+        {
+            q: "O Balde de Tinta compartilha o ícone com qual ferramenta?",
+            options: ["Degradê", "Borracha", "Pincel", "Lápis"],
+            correct: 0,
+            comment: "Ambas as ferramentas de preenchimento ficam no mesmo grupo."
+        },
+        {
+            q: "Onde ficam as configurações específicas da ferramenta selecionada?",
+            options: ["Barra de Menus", "Painel Camadas", "Barra de Opções", "Painel Histórico"],
+            correct: 2,
+            comment: "A Barra de Opções (topo) muda de acordo com a ferramenta ativa."
+        },
+        {
+            q: "Qual a desvantagem do JPG?",
+            options: ["É muito pesado", "Perde qualidade ao salvar várias vezes", "Não abre no navegador", "Só aceita 256 cores"],
+            correct: 1,
+            comment: "O JPG usa compressão 'lossy', que descarta dados a cada novo salvamento."
+        },
+        {
+            q: "Onde se localiza a Toolbar (Barra de Ferramentas) por padrão?",
+            options: ["Direita", "Esquerda", "Topo", "Rodapé"],
+            correct: 1,
+            comment: "A Toolbar fica tradicionalmente na vertical à esquerda."
+        },
+        {
+            q: "O que as teclas [ e ] fazem no Pincel?",
+            options: ["Muda a cor", "Muda a opacidade", "Muda o tamanho", "Muda o modo de mesclagem"],
+            correct: 2,
+            comment: "Colchetes são atalhos rápidos para redimensionar o diâmetro da ponta."
+        },
+        {
+            q: "No Conta-gotas, qual opção evita pegar 'pixels de ruído'?",
+            options: ["Amostra de Ponto", "Média de Amostra", "Opacidade", "Anti-alias"],
+            correct: 1,
+            comment: "A Média (ex: 3x3) calcula o tom médio da área, ignorando ruídos isolados."
+        }
+    ];
+
+    function loadQuiz() {
+        const container = document.getElementById('quiz-container');
+        questions.forEach((item, index) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = 'question';
+            qDiv.id = `q-block-${index}`;
+            
+            let optionsHTML = '';
+            item.options.forEach((opt, optIndex) => {
+                optionsHTML += `
+                    <label id="label-${index}-${optIndex}">
+                        <input type="radio" name="q${index}" value="${optIndex}"> ${opt}
+                    </label>
+                `;
+            });
+
+            qDiv.innerHTML = `
+                <h3>${index + 1}. ${item.q}</h3>
+                <div class="options">${optionsHTML}</div>
+                <div class="comment" id="comment-${index}">
+                    <strong>Resposta Correta: ${item.options[item.correct]}</strong><br>
+                    ${item.comment}
+                </div>
+            `;
+            container.appendChild(qDiv);
+        });
+    }
+
+    function calculateScore() {
+        let score = 0;
+        questions.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const commentBox = document.getElementById(`comment-${index}`);
+            
+            // Mostrar comentário
+            commentBox.style.display = 'block';
+
+            if (selected) {
+                const answer = parseInt(selected.value);
+                if (answer === item.correct) {
+                    score++;
+                    document.getElementById(`label-${index}-${answer}`).classList.add('correct-answer');
+                } else {
+                    document.getElementById(`label-${index}-${answer}`).classList.add('wrong-answer');
+                    document.getElementById(`label-${index}-${item.correct}`).classList.add('correct-answer');
+                }
+            } else {
+                // Se não respondeu, destaca a correta
+                document.getElementById(`label-${index}-${item.correct}`).classList.add('correct-answer');
+            }
+        });
+
+        const resultDiv = document.getElementById('result');
+        const percent = ((score / questions.length) * 100).toFixed(0);
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `Você acertou ${score} de ${questions.length} questões (${percent}%)`;
+        resultDiv.style.backgroundColor = score >= 7 ? '#d4edda' : '#f8d7da';
+        
+        window.scrollTo(0, document.body.scrollHeight);
+        document.getElementById('submit-btn').disabled = true;
+    }
+
+    window.onload = loadQuiz;
+</script>
+
+</body>
+</html>
